@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+  backend-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 8091:5432
+  mlflow-server:
+    build : .
+    ports:
+      - "5011:5000"
+    depends_on: 
+      - backend-db
+    volumes:
+      - ./model_artifacts_new6:/model_artifacts_new6
+    command: >
+      bash -c "mlflow server --host 0.0.0.0 
+      --backend-store-uri postgresql://postgres:mypassword@backend-db:5432/postgres 
+      --default-artifact-root ./model_artifacts_new6"
+    # command: bash -c "tail -f /dev/null"
